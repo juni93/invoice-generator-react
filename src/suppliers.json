@@ -1,0 +1,29 @@
+[
+	{
+		"company": "sasu-tce",
+		"imagePath": "./images/sasu-tce.jpg",
+		"footer" : {
+			"firstLine": "Siege Social: 88 AVENUE PAUL VAILLANT COUTURIER 93200 ST DENIS",
+			"secondLine": "Capital: 10.000€ R.C.S : 848 389 052 BOBIGBY",
+			"thirdLine": "E-MAIL: SASUTCE1971@gmail.com"
+		}
+	},
+	{
+		"company": "it-reno",
+		"imagePath": "./images/it-reno.jpg",
+		"footer" : {
+			"firstLine": "Siege social : 1 Rue Henri Barbusse 93300 Aubervilliers",
+			"secondLine": "Capital : 8 000€ R.C.S : 889 503 892 APE: 4120B BOBIGNY",
+			"thirdLine": "E-mail: sasuitrenovation@gmail.com"
+		}
+	},
+	{
+		"company": "cfr-bat",
+		"imagePath": "./images/cfr-bat.jpg",
+		"footer" : {
+			"firstLine": "15 Rue du Bois de Locheres, 93240 Stains",
+			"secondLine": "R.C.S: 903 370 476 Bobigny, Capital 5000€",
+			"thirdLine": "infocfrbat@gmail.com"
+		}
+	}
+]

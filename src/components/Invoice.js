@@ -3,11 +3,13 @@ import LineItems from './LineItems'
 import { v4 as uuidv4 } from 'uuid';
 import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer';
 import PdfDocument from './PdfDocument'
+import LinesWithoutDetails from './LinesWithoutDetails';
 
 const Invoice = () => {
 
 	const [taxRate, setTaxRate] = useState(0)
 	const [chantier, setChantier] = useState(false)
+	const [withDetails, setWithDetails] = useState(false)
 	const [chantierDetails, setChantierDetails] = useState('')
 	const [facNo, setFacNo] = useState('')
 	const [facDate, setFacDate] = useState('')
@@ -32,7 +34,8 @@ const Invoice = () => {
 
 
 	const formatCurrency = (amount) => {
-		return (new Intl.NumberFormat('FR-fr', {
+		//return amount.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+		return (new Intl.NumberFormat('it-IT', {
 			style: 'currency',
 			currency: 'EUR',
 			minimumFractionDigits: 2,
@@ -70,7 +73,10 @@ const Invoice = () => {
 	}
 
 	const calcLineItemsTotal = () => {
-		return lineItems.reduce((prev, cur) => (prev + (cur.quantity * cur.price)), 0)
+		return withDetails ?
+		lineItems.reduce((prev, cur) => (prev + (cur.quantity * cur.price)), 0)
+		:
+		lineItems.reduce((prev, cur) => (prev + (1 * cur.price)), 0)
 	}
 
 	const calcTaxTotal = () => {
@@ -87,8 +93,9 @@ const Invoice = () => {
 				<div className="col-md">
 					<select className="form-select" aria-label="Default select example" value={provider} onChange={(e) => setProvider(e.target.value)}>
 						<option defaultValue>Choisir le fournisseur</option>
-						<option value="itReno">It Renovation</option>
-						<option value="tce">Sasu Tce</option>
+						<option value="it-reno">It Renovation</option>
+						<option value="sasu-tce">Sasu Tce</option>
+						<option value="cfr-bat">CFR Bat</option>
 					</select>
 					<div className="form-floating mt-2">
 						<input type="text" className="form-control" id="floatingInputGridFacture" value={facNo} onChange={(e) => setFacNo(e.target.value)}></input>
@@ -129,10 +136,21 @@ const Invoice = () => {
 					}
 				</div>
 			</div>
-			<LineItems items={lineItems} addHandler={handleAddLine} deleteHandler={handleDeleteLine} changeHandler={handleLineItemChange} currencyFormatter={formatCurrency} />
-
 			<div className="row mt-2">
-				<div className="col-md-2">
+				<div className="col">
+					<div className="form-check">
+						<input className="form-check-input" type="checkbox" id="details" defaultChecked={withDetails} onChange={() => setWithDetails(!withDetails)} />
+						<label className="form-check-label" htmlFor="details">Avec Details</label>
+					</div>
+					{withDetails ?
+						<LineItems items={lineItems} addHandler={handleAddLine} deleteHandler={handleDeleteLine} changeHandler={handleLineItemChange} currencyFormatter={formatCurrency} />
+						:
+						<LinesWithoutDetails items={lineItems} addHandler={handleAddLine} deleteHandler={handleDeleteLine} changeHandler={handleLineItemChange} currencyFormatter={formatCurrency} />
+					}
+				</div>
+			</div>
+			<div className="row mt-2">
+				<div className="col-md-3">
 					<div className="input-group flex-nowrap">
 						<span className="input-group-text" id="addon-wrapping">T.V.A %</span>
 						<input type="number" className="form-control" step="0.01" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} onFocus={handleFocusSelect} id="floatingInputGridVat" />
@@ -155,7 +173,7 @@ const Invoice = () => {
 			</div>
 			<div className="row mt-2">
 				<div className="col">
-					<PDFDownloadLink document={<PdfDocument tax={taxRate} chantier={chantier} chantierDetails={chantierDetails} fac={facNo} facDate={facDate} provider={provider} client={clientData} items={lineItems} totalTax={calcTaxTotal} totalItemsPrice={calcLineItemsTotal} grandTotal={calcGrandTotal} currencyFormatter={formatCurrency} />} fileName={facNo + clientData.name + '.pdf'}>
+					<PDFDownloadLink document={<PdfDocument tax={taxRate} withDetails={withDetails} chantier={chantier} chantierDetails={chantierDetails} fac={facNo} facDate={facDate} provider={provider} client={clientData} items={lineItems} totalTax={calcTaxTotal} totalItemsPrice={calcLineItemsTotal} grandTotal={calcGrandTotal} currencyFormatter={formatCurrency} />} fileName={facNo + clientData.name + '.pdf'}>
 						{({ blob, url, loading, error }) => loading ? <p>Chargement...</p> : <button type="button" className="btn btn-primary">Télécharger le PDF</button>
 						}
 					</PDFDownloadLink>

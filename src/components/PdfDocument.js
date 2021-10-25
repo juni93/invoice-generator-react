@@ -1,19 +1,16 @@
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer'
+import { getSupplierData } from '../utils'
 
 // Create Document Component
-const PdfDocument = ({chantier, chantierDetails, client, currencyFormatter, fac, facDate, grandTotal, items, provider, tax, totalItemsPrice, totalTax}) => {
+const PdfDocument = ({withDetails, chantier, chantierDetails, client, currencyFormatter, fac, facDate, grandTotal, items, provider, tax, totalItemsPrice, totalTax}) => {
 	let imgSrc = "./images/blank.jpg"
-	if(provider === "itReno"){
-		imgSrc = "./images/it-reno.jpg"
-	}else if(provider === "tce") {
-		imgSrc = "./images/sasu-tce.jpg"
-	}
+	const supplierData = getSupplierData(provider)
 	return (
 		<Document>
 			<Page style={styles.body}>
 				<Image
 					style={styles.image}
-					src={imgSrc}
+					src={supplierData ? supplierData.imagePath : imgSrc}
 				/>
 				<View style={styles.flexSpace}>
 					<View>
@@ -30,33 +27,45 @@ const PdfDocument = ({chantier, chantierDetails, client, currencyFormatter, fac,
 				{chantier && <Text>Chantier: {chantierDetails}</Text>}
 				<View style={styles.table}>
 					<View style={styles.tableRow}>
-						<View style={styles.tableColDesc}>
+						<View style={withDetails ? styles.tableColDesc : styles.tableColDescWithoutDetails}>
 							<Text style={styles.tableCell}>Description</Text>
 						</View>
-						<View style={styles.tableColQty}>
-							<Text style={styles.tableCell}>Qty</Text>
-						</View>
-						<View style={styles.tableCol}>
-							<Text style={styles.tableCell}>P Unit</Text>
-						</View>
+						{
+							withDetails &&
+							<View style={styles.tableColQty}>
+								<Text style={styles.tableCell}>Qty</Text>
+							</View>
+						}
+						{
+							withDetails &&
+							<View style={styles.tableCol}>
+								<Text style={styles.tableCell}>P Unit</Text>
+							</View>
+						}
 						<View style={styles.tableCol}>
 							<Text style={styles.tableCell}>P Total</Text>
 						</View>
 					</View>
 					{items.map((item, i) => (
 						<View key={i} style={styles.tableRow}>
-							<View style={styles.tableColDesc}>
+							<View style={withDetails ? styles.tableColDesc : styles.tableColDescWithoutDetails}>
 								<Text style={styles.tableCell}>{item.description}</Text>
 							</View>
-							<View style={styles.tableColQty}>
-								<Text style={styles.tableCell}>{item.quantity}</Text>
-							</View>
+							{
+								withDetails &&
+								<View style={styles.tableColQty}>
+									<Text style={styles.tableCell}>{item.quantity}</Text>
+								</View>
+							}
 							<View style={styles.tableCol}>
 								<Text style={styles.tableCell}>{item.price}</Text>
 							</View>
-							<View style={styles.tableCol}>
-								<Text style={styles.tableCell}>{currencyFormatter(item.quantity * item.price)}</Text>
-							</View>
+							{
+								withDetails &&
+								<View style={styles.tableCol}>
+									<Text style={styles.tableCell}>{currencyFormatter(item.quantity * item.price)}</Text>
+								</View>
+							}
 						</View>
 					))}
 				</View>
@@ -83,9 +92,9 @@ const PdfDocument = ({chantier, chantierDetails, client, currencyFormatter, fac,
 					<Text>VALUER EN VOTRE A IMABLE REGLEMENT AU JUOR DE RECEPTION FACTURE REGLEMENT PAR VIREMENT BANCAIRE</Text>
 				</View>
 				<View style={styles.footerNotes}>
-					<Text>Siege Social: 88 AVENUE PAUL VAILLANT COUTURIER 93200 ST DENIS,</Text>
-					<Text>Capital: 10.000€ R.C.S : 848 389 052 BOBIGBY</Text>
-					<Text>E-MAIL: SASUTCE1971@gmail.com</Text>
+					<Text>{supplierData ? supplierData.footer.firstLine : ''}</Text>
+					<Text>{supplierData ? supplierData.footer.secondLine: ''}</Text>
+					<Text>{supplierData ? supplierData.footer.thirdLine: ''}</Text>
 				</View>
 			</Page>
 		</Document>
@@ -123,6 +132,13 @@ const styles = StyleSheet.create({
 	},
 	tableColDesc: {
 		width: "50%",
+		borderStyle: "solid",
+		borderWidth: 1,
+		borderLeftWidth: 0,
+		borderTopWidth: 0
+	},
+	tableColDescWithoutDetails: {
+		width: "80%",
 		borderStyle: "solid",
 		borderWidth: 1,
 		borderLeftWidth: 0,
