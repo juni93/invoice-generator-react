@@ -1,18 +1,20 @@
 import React from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import Invoice from './components/Invoice'
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Login from './auth/Login';
+import Dashboard from './components/Dashboard';
+
 
 
 const App = () => {
 	return (
-		<div className="container">
-			<h1 className="mt-3">Invoice Generator</h1>
-			<div className="row mt-3">
-				<div className="col-sm">
-					<Invoice />
-				</div>
-			</div>
-		</div>
+		<Router>
+			<Switch>
+				<Route exact path="/" component={Login} />
+				<Route exact path="/dashboard" component={Dashboard} />
+			</Switch>
+		</Router>
+
 	)
 }
 
