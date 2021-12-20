@@ -8,6 +8,7 @@ import LinesWithoutDetails from './LinesWithoutDetails';
 const Invoice = () => {
 
 	const [taxRate, setTaxRate] = useState(0)
+	const [tva, setTva] = useState(false)
 	const [chantier, setChantier] = useState(false)
 	const [withDetails, setWithDetails] = useState(false)
 	const [chantierDetails, setChantierDetails] = useState('')
@@ -86,6 +87,7 @@ const Invoice = () => {
 	const calcGrandTotal = () => {
 		return calcLineItemsTotal() + calcTaxTotal()
 	}
+	console.log(facDate)
 
 	return (
 		<div className="container">
@@ -99,10 +101,10 @@ const Invoice = () => {
 					</select>
 					<div className="form-floating mt-2">
 						<input type="text" className="form-control" id="floatingInputGridFacture" value={facNo} onChange={(e) => setFacNo(e.target.value)}></input>
-						<label htmlFor="factureField" className="form-label">Facture #</label>
+						<label htmlFor="factureField" className="form-label">Facture n°</label>
 					</div>
 					<div className="form-floating mt-2">
-						<input type="date" className="form-control" id="floatingInputGridDate" value={facDate} onChange={(e) => setFacDate(e.target.value)} />
+						<input type="date" className="form-control" id="floatingInputGridDate" value={facDate} onChange={(e) => setFacDate(new Date(e.target.value).toLocaleDateString())} />
 						<label htmlFor="dateField" className="form-label">Date</label>
 					</div>
 
@@ -150,12 +152,19 @@ const Invoice = () => {
 				</div>
 			</div>
 			<div className="row mt-2">
-				<div className="col-md-3">
-					<div className="input-group flex-nowrap">
-						<span className="input-group-text" id="addon-wrapping">T.V.A %</span>
-						<input type="number" className="form-control" step="0.01" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} onFocus={handleFocusSelect} id="floatingInputGridVat" />
-					</div>
+				<div className="form-check">
+					<input className="form-check-input" type="checkbox" id="tva" defaultChecked={tva} onChange={() => setTva(!tva)} />
+					<label className="form-check-label" htmlFor="details">Avec Tva</label>
 				</div>
+				{tva &&
+					<div className="col-md-3">
+						<div className="input-group flex-nowrap">
+							<span className="input-group-text" id="addon-wrapping">T.V.A %</span>
+							<input type="number" className="form-control" step="0.01" value={taxRate} onChange={(e) => setTaxRate(e.target.value)} onFocus={handleFocusSelect} id="floatingInputGridVat" />
+						</div>
+					</div>
+				}
+				
 				<div className="col-md-5 offset-md-5">
 					<div className="input-group flex-nowrap">
 						<span className="input-group-text" id="addon-wrapping">Total HT</span>
@@ -173,7 +182,7 @@ const Invoice = () => {
 			</div>
 			<div className="row mt-2">
 				<div className="col">
-					<PDFDownloadLink document={<PdfDocument tax={taxRate} withDetails={withDetails} chantier={chantier} chantierDetails={chantierDetails} fac={facNo} facDate={facDate} provider={provider} client={clientData} items={lineItems} totalTax={calcTaxTotal} totalItemsPrice={calcLineItemsTotal} grandTotal={calcGrandTotal} currencyFormatter={formatCurrency} />} fileName={facNo + clientData.name + '.pdf'}>
+					<PDFDownloadLink document={<PdfDocument tax={taxRate} withDetails={withDetails} chantier={chantier} chantierDetails={chantierDetails} fac={facNo} facDate={facDate} provider={provider} client={clientData} items={lineItems} totalTax={calcTaxTotal} totalItemsPrice={calcLineItemsTotal} grandTotal={calcGrandTotal} currencyFormatter={formatCurrency} avecTva={tva}/>} fileName={facNo + clientData.name + '.pdf'}>
 						{({ blob, url, loading, error }) => loading ? <p>Chargement...</p> : <button type="button" className="btn btn-primary">Télécharger le PDF</button>
 						}
 					</PDFDownloadLink>
